@@ -9,5 +9,6 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 # Copy the built jar from the builder stage (assumes single executable jar)
 COPY --from=builder /app/target/*.jar /app/app.jar
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+# Render injects PORT env var; Spring Boot reads SERVER_PORT automatically
+EXPOSE 10000
+ENTRYPOINT ["java","-jar","/app/app.jar","--server.port=${PORT:-10000}"]
