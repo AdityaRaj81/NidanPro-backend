@@ -2,7 +2,7 @@ services:
   - type: web
     name: nidanpro-backend
     runtime: java
-    buildCommand: ./mvnw clean package -DskipTests
+    buildCommand: chmod +x mvnw && ./mvnw clean package -DskipTests
     startCommand: java -jar target/*.jar
     envVars:
       - key: PORT
