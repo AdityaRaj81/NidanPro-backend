@@ -1,9 +1,7 @@
 services:
   - type: web
     name: nidanpro-backend
-    runtime: java
-    buildCommand: chmod +x mvnw && ./mvnw clean package -DskipTests
-    startCommand: java -jar target/*.jar
+    runtime: docker
     envVars:
       - key: PORT
         value: 8080
