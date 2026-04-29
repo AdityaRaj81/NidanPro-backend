@@ -1,7 +1,30 @@
+databases:
+  - name: nidanpro-db
+    databaseName: nidanpro
+    user: nidanpro_user
+    plan: free
+
 services:
   - type: web
     name: nidanpro-backend
     runtime: docker
+    plan: free
     envVars:
       - key: PORT
         value: 10000
+      - key: DB_URL
+        fromDatabase:
+          name: nidanpro-db
+          property: jdbcConnectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: nidanpro-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: nidanpro-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: https://your-frontend-url.vercel.app
