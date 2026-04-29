@@ -1,9 +1,3 @@
-databases:
-  - name: nidanpro-db
-    databaseName: nidanpro
-    user: nidanpro_user
-    plan: free
-
 services:
   - type: web
     name: nidanpro-backend
@@ -12,19 +6,10 @@ services:
     envVars:
       - key: PORT
         value: 10000
-      - key: DB_URL
-        fromDatabase:
-          name: nidanpro-db
-          property: jdbcConnectionString
-      - key: DB_USERNAME
-        fromDatabase:
-          name: nidanpro-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: nidanpro-db
-          property: password
-      - key: JWT_SECRET
-        generateValue: true
       - key: APP_CORS_ALLOWED_ORIGINS
-        value: https://your-frontend-url.vercel.app
+        value: https://nidanpro.netlify.app
+      # Set these 3 in the Render Dashboard (Environment tab) — do NOT commit credentials to git:
+      # DB_URL     = jdbc:postgresql://ep-dry-mode-aoh9wexp-pooler.c-2.ap-southeast-1.aws.neon.tech/nidanpro_DB?sslmode=require
+      # DB_USERNAME = neondb_owner
+      # DB_PASSWORD = <your neon password>
+      # JWT_SECRET  = <any random 32+ char string>
