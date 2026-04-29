@@ -1,0 +1,13 @@
+# Ignore build artifacts and local files
+target
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.idea
+.vscode
+.git
+.gradle
+.classpath
+.project
+.settings
+*.iml
+local-*.log
