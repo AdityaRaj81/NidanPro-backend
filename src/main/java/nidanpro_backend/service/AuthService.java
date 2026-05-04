@@ -29,9 +29,10 @@ public class AuthService {
   private String defaultOtp;
 
   public AuthResponse loginStaff(String email, String password) {
-    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+    String normalizedEmail = email.trim().toLowerCase();
+    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(normalizedEmail, password));
 
-    var staff = staffUserRepository.findByEmailIgnoreCase(email)
+    var staff = staffUserRepository.findByEmailIgnoreCase(normalizedEmail)
         .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
 
     var principal = User.builder()
