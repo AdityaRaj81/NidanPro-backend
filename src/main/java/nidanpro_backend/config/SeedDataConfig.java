@@ -42,6 +42,7 @@ public class SeedDataConfig {
 
       StaffUser superAdmin = new StaffUser();
       superAdmin.setName(superAdminName);
+      superAdmin.setEmployeeCode("ADMIN" + java.time.Year.now().getValue());
       superAdmin.setEmail(superAdminEmail.trim().toLowerCase());
       superAdmin.setPasswordHash(passwordEncoder.encode(superAdminPassword));
       superAdmin.setRole(superAdminRole);
