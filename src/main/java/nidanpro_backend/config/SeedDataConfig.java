@@ -36,6 +36,14 @@ public class SeedDataConfig {
         return;
       }
 
+      // Backfill missing employee codes for existing users
+      for (StaffUser existingUser : staffUserRepository.findAll()) {
+          if (!StringUtils.hasText(existingUser.getEmployeeCode())) {
+              existingUser.setEmployeeCode("EMP" + java.time.Year.now().getValue() + java.util.UUID.randomUUID().toString().substring(0, 4).toUpperCase());
+              staffUserRepository.save(existingUser);
+          }
+      }
+
       if (staffUserRepository.findByEmailIgnoreCase(superAdminEmail).isPresent()) {
         return;
       }

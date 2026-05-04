@@ -27,7 +27,7 @@ public class StaffUser {
   @Column(nullable = false)
   private String name;
 
-  @Column(name = "employee_code", nullable = false, unique = true)
+  @Column(name = "employee_code", unique = true)
   private String employeeCode;
 
   @Column(unique = true)
