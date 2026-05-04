@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StaffUserRepository extends JpaRepository<StaffUser, Long> {
   Optional<StaffUser> findByEmailIgnoreCase(String email);
+  Optional<StaffUser> findByEmployeeCode(String employeeCode);
 }

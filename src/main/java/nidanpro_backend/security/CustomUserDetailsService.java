@@ -16,11 +16,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    var user = staffUserRepository.findByEmailIgnoreCase(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    nidanpro_backend.model.StaffUser user;
+    if (username.contains("@")) {
+        user = staffUserRepository.findByEmailIgnoreCase(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    } else {
+        user = staffUserRepository.findByEmployeeCode(username.toUpperCase())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
     return User.builder()
-        .username(user.getEmail())
+        .username(username)
         .password(user.getPasswordHash())
         .disabled(!user.isActive())
         .roles(user.getRole().getRoleName())

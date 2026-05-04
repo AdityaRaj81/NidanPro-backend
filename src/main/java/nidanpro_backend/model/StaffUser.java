@@ -27,7 +27,10 @@ public class StaffUser {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(name = "employee_code", nullable = false, unique = true)
+  private String employeeCode;
+
+  @Column(unique = true)
   private String email;
 
   @Column

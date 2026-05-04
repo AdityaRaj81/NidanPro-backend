@@ -28,15 +28,25 @@ public class AuthService {
   @Value("${app.patient-auth.default-otp}")
   private String defaultOtp;
 
-  public AuthResponse loginStaff(String email, String password) {
-    String normalizedEmail = email.trim().toLowerCase();
-    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(normalizedEmail, password));
+  public AuthResponse loginStaff(String loginId, String password, String role) {
+    String normalizedId = loginId.trim();
+    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(normalizedId, password));
 
-    var staff = staffUserRepository.findByEmailIgnoreCase(normalizedEmail)
-        .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+    nidanpro_backend.model.StaffUser staff;
+    if (normalizedId.contains("@")) {
+        staff = staffUserRepository.findByEmailIgnoreCase(normalizedId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+    } else {
+        staff = staffUserRepository.findByEmployeeCode(normalizedId.toUpperCase())
+            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+    }
+
+    if (role != null && !role.isBlank() && !staff.getRole().getRoleName().equalsIgnoreCase(role)) {
+        throw new IllegalArgumentException("Selected role does not match user account");
+    }
 
     var principal = User.builder()
-        .username(staff.getEmail())
+        .username(normalizedId)
         .password(staff.getPasswordHash())
       .roles(staff.getRole().getRoleName())
         .build();

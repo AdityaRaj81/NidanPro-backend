@@ -1,6 +1,8 @@
 package nidanpro_backend.service;
 
 import java.util.List;
+import java.util.UUID;
+import java.time.Year;
 import lombok.RequiredArgsConstructor;
 import nidanpro_backend.dto.CreateStaffRequest;
 import nidanpro_backend.dto.StaffResponse;
@@ -20,13 +22,14 @@ public class StaffService {
   private final PasswordEncoder passwordEncoder;
 
   public StaffResponse create(CreateStaffRequest request) {
-    if (staffUserRepository.findByEmailIgnoreCase(request.email()).isPresent()) {
+    if (request.email() != null && !request.email().isBlank() && staffUserRepository.findByEmailIgnoreCase(request.email()).isPresent()) {
       throw new IllegalArgumentException("Email is already registered");
     }
 
     StaffUser user = new StaffUser();
     user.setName(request.fullName());
-    user.setEmail(request.email().trim().toLowerCase());
+    user.setEmployeeCode(String.format("EMP%d%s", Year.now().getValue(), UUID.randomUUID().toString().substring(0, 4).toUpperCase()));
+    user.setEmail(request.email() != null && !request.email().isBlank() ? request.email().trim().toLowerCase() : null);
     user.setPhone(request.phone());
     user.setPasswordHash(passwordEncoder.encode(request.password()));
     user.setRole(resolveRole(request.role()));
@@ -49,7 +52,7 @@ public class StaffService {
   }
 
   private StaffResponse toDto(StaffUser user) {
-    return new StaffResponse(user.getId(), user.getName(), user.getEmail(), user.getRole().getRoleName(), user.isActive());
+    return new StaffResponse(user.getId(), user.getName(), user.getEmployeeCode(), user.getEmail(), user.getRole().getRoleName(), user.isActive());
   }
 
   private Role resolveRole(String roleName) {

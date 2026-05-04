@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateStaffRequest(
     @NotBlank String fullName,
-    @Email @NotBlank String email,
+    @Email String email,
     @NotBlank String password,
     @NotNull String role,
     String phone,
