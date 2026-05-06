@@ -32,4 +32,10 @@ public class ReportResult {
 
   @Column(nullable = false)
   private String value;
+
+  @Column(name = "out_of_range")
+  private Boolean outOfRange;
+
+  @Column(name = "issue_message", length = 500)
+  private String issueMessage;
 }

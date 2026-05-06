@@ -9,6 +9,7 @@ import nidanpro_backend.dto.ReportSummaryResponse;
 import nidanpro_backend.dto.SaveReportResultsRequest;
 import nidanpro_backend.dto.VerifyReportRequest;
 import nidanpro_backend.model.LabReport;
+import nidanpro_backend.model.TestParameter;
 import nidanpro_backend.service.ReportService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,12 @@ public class ReportsController {
   @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<List<ReportSummaryResponse>> listReports() {
     return ResponseEntity.ok(reportService.listReports());
+  }
+
+  @GetMapping("/api/reports/{id}/parameters")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','TECHNICIAN','PATHOLOGIST')")
+  public ResponseEntity<List<TestParameter>> listReportParameters(@PathVariable Long id) {
+    return ResponseEntity.ok(reportService.listParametersForReport(id));
   }
 
   @PutMapping("/api/reports/{id}/results")

@@ -12,6 +12,7 @@ import nidanpro_backend.model.LabReport;
 import nidanpro_backend.model.ReportResult;
 import nidanpro_backend.model.ReportStatus;
 import nidanpro_backend.model.ReportStatusHistory;
+import nidanpro_backend.model.TestParameter;
 import nidanpro_backend.repository.LabReportRepository;
 import nidanpro_backend.repository.LabTestRepository;
 import nidanpro_backend.repository.PatientRepository;
@@ -97,6 +98,8 @@ public class ReportService {
       result.setParameter(testParameterRepository.findById(item.parameterId())
           .orElseThrow(() -> new IllegalArgumentException("Parameter not found")));
       result.setValue(item.value());
+      result.setOutOfRange(Boolean.TRUE.equals(item.outOfRange()));
+      result.setIssueMessage(item.issueMessage());
       newResults.add(result);
     }
     reportResultRepository.saveAll(newResults);
@@ -104,9 +107,15 @@ public class ReportService {
     report.setStatus(ReportStatus.COMPLETED);
     LabReport saved = labReportRepository.save(report);
     recordStatus(saved, ReportStatus.COMPLETED,
-      staffUserRepository.findByEmailIgnoreCase(staffEmail).orElse(saved.getEnteredBy()),
-      "Results saved");
+        staffUserRepository.findByEmailIgnoreCase(staffEmail).orElse(saved.getEnteredBy()),
+        "Results saved");
     return saved;
+  }
+
+  public List<TestParameter> listParametersForReport(Long reportId) {
+    LabReport report = labReportRepository.findById(reportId)
+        .orElseThrow(() -> new IllegalArgumentException("Report not found"));
+    return testParameterRepository.findByLabTest_Id(report.getLabTest().getId());
   }
 
   public LabReport verifyReport(Long reportId, VerifyReportRequest request, String staffEmail) {
@@ -134,7 +143,8 @@ public class ReportService {
     return "RPT" + String.format("%06d", count);
   }
 
-  private void recordStatus(LabReport report, ReportStatus status, nidanpro_backend.model.StaffUser changedBy, String remarks) {
+  private void recordStatus(LabReport report, ReportStatus status, nidanpro_backend.model.StaffUser changedBy,
+      String remarks) {
     ReportStatusHistory history = new ReportStatusHistory();
     history.setReport(report);
     history.setStatus(status);

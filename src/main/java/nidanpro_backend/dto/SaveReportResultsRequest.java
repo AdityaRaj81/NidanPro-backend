@@ -5,6 +5,6 @@ import java.util.List;
 
 public record SaveReportResultsRequest(
     @NotEmpty List<ResultItem> results) {
-  public record ResultItem(Long parameterId, String value) {
+  public record ResultItem(Long parameterId, String value, Boolean outOfRange, String issueMessage) {
   }
 }
