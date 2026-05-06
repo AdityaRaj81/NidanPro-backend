@@ -40,4 +40,12 @@ public class PatientsController {
   public ResponseEntity<List<Patient>> searchByPhone(@RequestParam String phone) {
     return ResponseEntity.ok(patientService.findByPhone(phone));
   }
+
+  @GetMapping("/by-code")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
+  public ResponseEntity<Patient> searchByCode(@RequestParam String code) {
+    return patientService.findByCode(code)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
+  }
 }

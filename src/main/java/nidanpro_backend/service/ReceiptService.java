@@ -2,6 +2,7 @@ package nidanpro_backend.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import nidanpro_backend.dto.GenerateReceiptRequest;
 import nidanpro_backend.dto.ReceiptResponse;
@@ -18,55 +19,64 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReceiptService {
 
-  private final LabTestRepository labTestRepository;
-  private final PatientRepository patientRepository;
-  private final StaffUserRepository staffUserRepository;
-  private final ReceiptRepository receiptRepository;
+    private final LabTestRepository labTestRepository;
+    private final PatientRepository patientRepository;
+    private final StaffUserRepository staffUserRepository;
+    private final ReceiptRepository receiptRepository;
 
-  public ReceiptResponse generateReceipt(GenerateReceiptRequest request, String staffEmail) {
-    List<String> testNames = request.testIds().stream()
-        .map(id -> labTestRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid test ID: " + id))
-            .getTestName())
-        .toList();
+    public ReceiptResponse generateReceipt(GenerateReceiptRequest request, String staffEmail) {
+        List<String> testNames = request.testIds().stream()
+                .map(id -> labTestRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid test ID: " + id))
+                        .getTestName())
+                .toList();
 
-    String receiptCode = "REC-" + System.currentTimeMillis();
-    String patientRef = request.patientCode() != null && !request.patientCode().isBlank()
-        ? request.patientCode()
-        : request.patientPhone();
+        String receiptCode = generateReceiptCode();
+        String patientRef = request.patientCode() != null && !request.patientCode().isBlank()
+                ? request.patientCode()
+                : request.patientPhone();
 
-    Patient patient = resolvePatient(request);
-    StaffUser createdBy = staffUserRepository.findByEmailIgnoreCase(staffEmail)
-        .orElseThrow(() -> new IllegalArgumentException("Staff not found"));
+        Patient patient = resolvePatient(request);
+        StaffUser createdBy = staffUserRepository.findByEmailIgnoreCase(staffEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Staff not found"));
 
-    Receipt receipt = new Receipt();
-    receipt.setReceiptNumber(receiptCode);
-    receipt.setPatient(patient);
-    receipt.setTotalTests(testNames.size());
-    receipt.setCreatedBy(createdBy);
-    receiptRepository.save(receipt);
+        Receipt receipt = new Receipt();
+        receipt.setReceiptNumber(receiptCode);
+        receipt.setPatient(patient);
+        receipt.setTotalTests(testNames.size());
+        receipt.setCreatedBy(createdBy);
+        receiptRepository.save(receipt);
 
-    return new ReceiptResponse(
-        receiptCode,
-        Instant.now(),
-        patientRef,
-        request.patientName(),
-        testNames);
-  }
-
-  private Patient resolvePatient(GenerateReceiptRequest request) {
-    if (request.patientCode() != null && !request.patientCode().isBlank()) {
-      return patientRepository.findByPatientCodeIgnoreCase(request.patientCode())
-          .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
+        return new ReceiptResponse(
+                receiptCode,
+                Instant.now(),
+                patientRef,
+                patient.getFullName(),
+                testNames);
     }
 
-    if (request.patientPhone() != null && !request.patientPhone().isBlank()) {
-      return patientRepository.findByPhoneNumber(request.patientPhone().replaceAll("\\D", ""))
-          .stream()
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
+    private String generateReceiptCode() {
+        String candidate;
+        do {
+            int suffix = ThreadLocalRandom.current().nextInt(1000, 10000);
+            candidate = "REC-" + System.currentTimeMillis() + "-" + suffix;
+        } while (receiptRepository.findByReceiptNumberIgnoreCase(candidate).isPresent());
+        return candidate;
     }
 
-    throw new IllegalArgumentException("Patient reference is required");
-  }
+    private Patient resolvePatient(GenerateReceiptRequest request) {
+        if (request.patientCode() != null && !request.patientCode().isBlank()) {
+            return patientRepository.findByPatientCodeIgnoreCase(request.patientCode())
+                    .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
+        }
+
+        if (request.patientPhone() != null && !request.patientPhone().isBlank()) {
+            return patientRepository.findByPhoneNumber(request.patientPhone().replaceAll("\\D", ""))
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
+        }
+
+        throw new IllegalArgumentException("Patient reference is required");
+    }
 }

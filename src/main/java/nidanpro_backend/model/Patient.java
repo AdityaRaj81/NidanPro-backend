@@ -33,11 +33,17 @@ public class Patient {
   @Column(name = "phone", nullable = false)
   private String phoneNumber;
 
-  @Column(nullable = false)
+  @Column
   private LocalDate dateOfBirth;
 
   @Column(nullable = false)
   private Integer age;
+
+  @Column(name = "age_months")
+  private Integer ageMonths;
+
+  @Column(name = "age_days")
+  private Integer ageDays;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
