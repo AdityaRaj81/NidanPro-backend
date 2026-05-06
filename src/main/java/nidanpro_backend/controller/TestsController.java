@@ -1,6 +1,7 @@
 package nidanpro_backend.controller;
 
 import jakarta.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import nidanpro_backend.dto.CreateTestParameterRequest;
@@ -14,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +29,8 @@ public class TestsController {
 
   @PostMapping
   @PreAuthorize("hasAnyRole('SUPER_ADMIN','PATHOLOGIST')")
-  public ResponseEntity<LabTest> create(@Valid @RequestBody CreateTestRequest request) {
-    return new ResponseEntity<>(testService.createTest(request), HttpStatus.CREATED);
+  public ResponseEntity<LabTest> create(@Valid @RequestBody CreateTestRequest request, Principal principal) {
+    return new ResponseEntity<>(testService.createTest(request, principal.getName()), HttpStatus.CREATED);
   }
 
   @GetMapping
@@ -49,5 +51,22 @@ public class TestsController {
   @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<List<TestParameter>> listParameters(@PathVariable Long id) {
     return ResponseEntity.ok(testService.listParameters(id));
+  }
+
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
+  public ResponseEntity<LabTest> getById(@PathVariable Long id) {
+    return testService.getTestById(id)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
+  }
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','PATHOLOGIST')")
+  public ResponseEntity<LabTest> update(
+      @PathVariable Long id,
+      @Valid @RequestBody CreateTestRequest request,
+      Principal principal) {
+    return ResponseEntity.ok(testService.updateTest(id, request, principal.getName()));
   }
 }
