@@ -28,25 +28,25 @@ public class TestsController {
   private final TestService testService;
 
   @PostMapping
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST')")
   public ResponseEntity<LabTest> create(@Valid @RequestBody CreateTestRequest request, Principal principal) {
     return new ResponseEntity<>(testService.createTest(request, principal.getName()), HttpStatus.CREATED);
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST')")
   public ResponseEntity<List<LabTest>> list() {
     return ResponseEntity.ok(testService.listTests());
   }
 
   @GetMapping("/active")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<List<LabTest>> listActive() {
     return ResponseEntity.ok(testService.listActiveTests());
   }
 
   @PostMapping("/{id}/parameters")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST')")
   public ResponseEntity<TestParameter> addParameter(
       @PathVariable Long id,
       @Valid @RequestBody CreateTestParameterRequest request) {
@@ -54,13 +54,13 @@ public class TestsController {
   }
 
   @GetMapping("/{id}/parameters")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST')")
   public ResponseEntity<List<TestParameter>> listParameters(@PathVariable Long id) {
     return ResponseEntity.ok(testService.listParameters(id));
   }
 
   @GetMapping("/{id}")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST')")
   public ResponseEntity<LabTest> getById(@PathVariable Long id) {
     return testService.getTestById(id)
         .map(ResponseEntity::ok)
@@ -68,7 +68,7 @@ public class TestsController {
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST')")
   public ResponseEntity<LabTest> update(
       @PathVariable Long id,
       @Valid @RequestBody CreateTestRequest request,

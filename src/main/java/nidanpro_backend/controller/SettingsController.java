@@ -20,13 +20,13 @@ public class SettingsController {
   private final SettingsService settingsService;
 
   @GetMapping
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST','TECHNICIAN','SAMPLE_COLLECTOR')")
   public ResponseEntity<LabSetting> getSettings() {
     return ResponseEntity.ok(settingsService.getSettings());
   }
 
   @PutMapping
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<LabSetting> save(@RequestBody LabSettingsRequest request) {
     return ResponseEntity.ok(settingsService.saveSettings(request));
   }

@@ -9,9 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,54 +17,34 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "tests")
-public class LabTest {
+@Table(name = "branches")
+public class Branch {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
-  private String testCode;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "lab_id", nullable = false)
+  private Lab lab;
 
-  @Column(name = "test_name", nullable = false, unique = true)
-  private String testName;
+  @Column(name = "branch_name", nullable = false)
+  private String branchName;
 
   @Column(length = 1200)
-  private String description;
+  private String address;
 
-  @Column(nullable = false)
-  private BigDecimal price;
+  @Column
+  private String phone;
 
   @Column(name = "is_active", nullable = false)
   private boolean active = true;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "created_by")
-  private StaffUser createdBy;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "lab_id")
-  private Lab lab;
-
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
-
-  @Column(name = "updated_at")
-  private Instant updatedAt;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "updated_by")
-  private StaffUser updatedBy;
 
   @PrePersist
   void prePersist() {
     this.createdAt = Instant.now();
-    this.updatedAt = Instant.now();
-  }
-
-  @PreUpdate
-  void preUpdate() {
-    this.updatedAt = Instant.now();
   }
 }

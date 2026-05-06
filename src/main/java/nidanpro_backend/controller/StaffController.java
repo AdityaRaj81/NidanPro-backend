@@ -26,19 +26,20 @@ public class StaffController {
   private final StaffService staffService;
 
   @PostMapping
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
-  public ResponseEntity<StaffResponse> create(@Valid @RequestBody CreateStaffRequest request) {
-    return new ResponseEntity<>(staffService.create(request), HttpStatus.CREATED);
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<StaffResponse> create(@Valid @RequestBody CreateStaffRequest request,
+      java.security.Principal principal) {
+    return new ResponseEntity<>(staffService.create(request, principal.getName()), HttpStatus.CREATED);
   }
 
   @GetMapping
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<List<StaffResponse>> list() {
     return ResponseEntity.ok(staffService.list());
   }
 
   @PatchMapping("/{id}/active")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<StaffResponse> setActive(@PathVariable Long id, @RequestParam boolean active) {
     return ResponseEntity.ok(staffService.setActive(id, active));
   }

@@ -33,6 +33,10 @@ public class LabReport {
   @JoinColumn(name = "patient_id", nullable = false)
   private Patient patient;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "lab_id")
+  private Lab lab;
+
   @ManyToOne(fetch = FetchType.EAGER, optional = false)
   @JoinColumn(name = "test_id", nullable = false)
   private LabTest labTest;

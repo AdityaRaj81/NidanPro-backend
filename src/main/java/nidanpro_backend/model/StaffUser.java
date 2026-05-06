@@ -43,6 +43,14 @@ public class StaffUser {
   @JoinColumn(name = "role_id", nullable = false)
   private Role role;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "lab_id")
+  private Lab lab;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "branch_id")
+  private Branch branch;
+
   @Column(name = "signature_url")
   private String signatureUrl;
 

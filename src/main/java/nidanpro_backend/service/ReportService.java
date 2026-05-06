@@ -35,6 +35,8 @@ public class ReportService {
   private final ReportStatusHistoryRepository reportStatusHistoryRepository;
 
   public LabReport createReport(CreateReportRequest request, String staffEmail) {
+    var enteredBy = staffUserRepository.findByEmailIgnoreCase(staffEmail)
+        .orElseThrow(() -> new IllegalArgumentException("Staff not found"));
     LabReport report = new LabReport();
     report.setReportCode(generateReportCode());
     report.setPatient(patientRepository.findById(request.patientId())
@@ -42,8 +44,14 @@ public class ReportService {
     report.setLabTest(labTestRepository.findById(request.testId())
         .orElseThrow(() -> new IllegalArgumentException("Test not found")));
     report.setStatus(ReportStatus.SAMPLE_PENDING);
-    report.setEnteredBy(staffUserRepository.findByEmailIgnoreCase(staffEmail)
-        .orElseThrow(() -> new IllegalArgumentException("Staff not found")));
+    report.setEnteredBy(enteredBy);
+    report.setLab(enteredBy.getLab());
+    if (report.getPatient() != null && report.getPatient().getLab() == null) {
+      report.getPatient().setLab(enteredBy.getLab());
+    }
+    if (report.getLabTest() != null && report.getLabTest().getLab() == null) {
+      report.getLabTest().setLab(enteredBy.getLab());
+    }
 
     LabReport saved = labReportRepository.save(report);
     recordStatus(saved, ReportStatus.SAMPLE_PENDING, saved.getEnteredBy(), "Report created");
@@ -80,6 +88,8 @@ public class ReportService {
   }
 
   public LabReport saveResults(Long reportId, SaveReportResultsRequest request, String staffEmail) {
+    var staff = staffUserRepository.findByEmailIgnoreCase(staffEmail)
+        .orElseThrow(() -> new IllegalArgumentException("Staff not found"));
     LabReport report = labReportRepository.findById(reportId)
         .orElseThrow(() -> new IllegalArgumentException("Report not found"));
 
@@ -105,10 +115,11 @@ public class ReportService {
     reportResultRepository.saveAll(newResults);
 
     report.setStatus(ReportStatus.COMPLETED);
+    if (report.getLab() == null) {
+      report.setLab(staff.getLab());
+    }
     LabReport saved = labReportRepository.save(report);
-    recordStatus(saved, ReportStatus.COMPLETED,
-        staffUserRepository.findByEmailIgnoreCase(staffEmail).orElse(saved.getEnteredBy()),
-        "Results saved");
+    recordStatus(saved, ReportStatus.COMPLETED, staff, "Results saved");
     return saved;
   }
 
@@ -119,12 +130,16 @@ public class ReportService {
   }
 
   public LabReport verifyReport(Long reportId, VerifyReportRequest request, String staffEmail) {
+    var staff = staffUserRepository.findByEmailIgnoreCase(staffEmail)
+        .orElseThrow(() -> new IllegalArgumentException("Staff not found"));
     LabReport report = labReportRepository.findById(reportId)
         .orElseThrow(() -> new IllegalArgumentException("Report not found"));
 
     report.setRemarks(request.remarks());
-    report.setVerifiedBy(staffUserRepository.findByEmailIgnoreCase(staffEmail)
-        .orElseThrow(() -> new IllegalArgumentException("Staff not found")));
+    report.setVerifiedBy(staff);
+    if (report.getLab() == null) {
+      report.setLab(staff.getLab());
+    }
 
     if (request.approve()) {
       report.setStatus(ReportStatus.VERIFIED);

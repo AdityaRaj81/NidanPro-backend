@@ -24,25 +24,26 @@ public class PatientsController {
   private final PatientService patientService;
 
   @PostMapping
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','SAMPLE_COLLECTOR')")
-  public ResponseEntity<Patient> create(@Valid @RequestBody CreatePatientRequest request) {
-    return new ResponseEntity<>(patientService.createPatient(request), HttpStatus.CREATED);
+  @PreAuthorize("hasAnyRole('ADMIN','SAMPLE_COLLECTOR')")
+  public ResponseEntity<Patient> create(@Valid @RequestBody CreatePatientRequest request,
+      java.security.Principal principal) {
+    return new ResponseEntity<>(patientService.createPatient(request, principal.getName()), HttpStatus.CREATED);
   }
 
   @GetMapping
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<List<Patient>> list() {
     return ResponseEntity.ok(patientService.listPatients());
   }
 
   @GetMapping("/search")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<List<Patient>> searchByPhone(@RequestParam String phone) {
     return ResponseEntity.ok(patientService.findByPhone(phone));
   }
 
   @GetMapping("/by-code")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<Patient> searchByCode(@RequestParam String code) {
     return patientService.findByCode(code)
         .map(ResponseEntity::ok)

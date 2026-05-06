@@ -35,6 +35,7 @@ public class TestService {
     test.setActive(request.active());
     test.setCreatedBy(createdBy);
     test.setUpdatedBy(createdBy);
+    test.setLab(createdBy.getLab());
     return labTestRepository.save(test);
   }
 
@@ -51,6 +52,9 @@ public class TestService {
     test.setPrice(request.price());
     test.setActive(request.active());
     test.setUpdatedBy(updatedBy);
+    if (test.getLab() == null) {
+      test.setLab(updatedBy.getLab());
+    }
     return labTestRepository.save(test);
   }
 

@@ -34,28 +34,36 @@ public class AuthService {
 
     nidanpro_backend.model.StaffUser staff;
     if (normalizedId.contains("@")) {
-        staff = staffUserRepository.findByEmailIgnoreCase(normalizedId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+      staff = staffUserRepository.findByEmailIgnoreCase(normalizedId)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     } else {
-        staff = staffUserRepository.findByEmployeeCode(normalizedId.toUpperCase())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+      staff = staffUserRepository.findByEmployeeCode(normalizedId.toUpperCase())
+          .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     }
 
     if (role != null && !role.isBlank() && !staff.getRole().getRoleName().equalsIgnoreCase(role)) {
-        throw new IllegalArgumentException("Selected role does not match user account");
+      throw new IllegalArgumentException("Selected role does not match user account");
     }
 
     var principal = User.builder()
         .username(normalizedId)
         .password(staff.getPasswordHash())
-      .roles(staff.getRole().getRoleName())
+        .roles(staff.getRole().getRoleName())
         .build();
 
     String token = jwtService.generateToken(
         principal,
-      Map.of("role", staff.getRole().getRoleName(), "staffId", staff.getId()));
+        Map.of("role", staff.getRole().getRoleName(), "staffId", staff.getId()));
 
-    return new AuthResponse(token, staff.getEmail(), staff.getName(), staff.getRole().getRoleName());
+    return new AuthResponse(
+        token,
+        staff.getEmail(),
+        staff.getName(),
+        staff.getRole().getRoleName(),
+        staff.getLab() != null ? staff.getLab().getId() : null,
+        staff.getLab() != null ? staff.getLab().getLabName() : null,
+        staff.getBranch() != null ? staff.getBranch().getId() : null,
+        staff.getBranch() != null ? staff.getBranch().getBranchName() : null);
   }
 
   public SendOtpResponse sendPatientOtp(String phoneNumber) {

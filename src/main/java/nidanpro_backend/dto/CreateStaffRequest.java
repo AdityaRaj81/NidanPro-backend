@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateStaffRequest(
-    @NotBlank String fullName,
-    @Email String email,
-    @NotBlank String password,
-    @NotNull String role,
-    String phone,
-    String signatureUrl,
-    boolean active) {
+        @NotBlank String fullName,
+        @Email String email,
+        @NotBlank String password,
+        @NotNull String role,
+        String phone,
+        String signatureUrl,
+        Long labId,
+        Long branchId,
+        boolean active) {
 }

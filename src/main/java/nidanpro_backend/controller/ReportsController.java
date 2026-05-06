@@ -30,7 +30,7 @@ public class ReportsController {
   private final ReportService reportService;
 
   @PostMapping("/api/reports")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','SAMPLE_COLLECTOR')")
+  @PreAuthorize("hasAnyRole('ADMIN','SAMPLE_COLLECTOR')")
   public ResponseEntity<LabReport> createReport(
       @Valid @RequestBody CreateReportRequest request,
       Principal principal) {
@@ -38,19 +38,19 @@ public class ReportsController {
   }
 
   @GetMapping("/api/reports")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','SAMPLE_COLLECTOR','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<List<ReportSummaryResponse>> listReports() {
     return ResponseEntity.ok(reportService.listReports());
   }
 
   @GetMapping("/api/reports/{id}/parameters")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','TECHNICIAN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN','PATHOLOGIST')")
   public ResponseEntity<List<TestParameter>> listReportParameters(@PathVariable Long id) {
     return ResponseEntity.ok(reportService.listParametersForReport(id));
   }
 
   @PutMapping("/api/reports/{id}/results")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','TECHNICIAN')")
+  @PreAuthorize("hasAnyRole('ADMIN','TECHNICIAN')")
   public ResponseEntity<LabReport> saveResults(
       @PathVariable Long id,
       @Valid @RequestBody SaveReportResultsRequest request,
@@ -59,7 +59,7 @@ public class ReportsController {
   }
 
   @PutMapping("/api/reports/{id}/verify")
-  @PreAuthorize("hasAnyRole('SUPER_ADMIN','PATHOLOGIST')")
+  @PreAuthorize("hasAnyRole('ADMIN','PATHOLOGIST')")
   public ResponseEntity<LabReport> verify(
       @PathVariable Long id,
       @RequestBody VerifyReportRequest request,

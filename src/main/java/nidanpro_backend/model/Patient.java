@@ -7,6 +7,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.Instant;
@@ -48,6 +51,10 @@ public class Patient {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Gender gender;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "lab_id")
+  private Lab lab;
 
   @Column(length = 1200)
   private String address;

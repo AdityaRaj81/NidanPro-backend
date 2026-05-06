@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import nidanpro_backend.dto.CreatePatientRequest;
+import nidanpro_backend.model.StaffUser;
 import nidanpro_backend.model.Patient;
+import nidanpro_backend.repository.StaffUserRepository;
 import nidanpro_backend.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +17,13 @@ import org.springframework.stereotype.Service;
 public class PatientService {
 
   private final PatientRepository patientRepository;
+  private final StaffUserRepository staffUserRepository;
 
-  public Patient createPatient(CreatePatientRequest request) {
+  public Patient createPatient(CreatePatientRequest request, String requesterUsername) {
     validateRequest(request);
 
     AgeBreakdown ageBreakdown = resolveAge(request);
+    StaffUser requester = resolveRequester(requesterUsername);
 
     Patient patient = new Patient();
     patient.setPatientCode(generatePatientCode());
@@ -31,6 +35,9 @@ public class PatientService {
     patient.setAgeDays(ageBreakdown.days());
     patient.setGender(request.gender());
     patient.setAddress(request.address());
+    if (requester != null) {
+      patient.setLab(requester.getLab());
+    }
     return patientRepository.save(patient);
   }
 
@@ -90,6 +97,16 @@ public class PatientService {
   private String generatePatientCode() {
     long count = patientRepository.count() + 1;
     return "P" + String.format("%04d", count);
+  }
+
+  private StaffUser resolveRequester(String requesterUsername) {
+    if (requesterUsername == null || requesterUsername.isBlank()) {
+      return null;
+    }
+    if (requesterUsername.contains("@")) {
+      return staffUserRepository.findByEmailIgnoreCase(requesterUsername).orElse(null);
+    }
+    return staffUserRepository.findByEmployeeCode(requesterUsername.toUpperCase()).orElse(null);
   }
 
   private record AgeBreakdown(int years, int months, int days) {

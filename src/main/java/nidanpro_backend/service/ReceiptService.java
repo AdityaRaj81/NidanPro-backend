@@ -43,6 +43,7 @@ public class ReceiptService {
         Receipt receipt = new Receipt();
         receipt.setReceiptNumber(receiptCode);
         receipt.setPatient(patient);
+        receipt.setLab(createdBy.getLab());
         receipt.setTotalTests(testNames.size());
         receipt.setCreatedBy(createdBy);
         receiptRepository.save(receipt);

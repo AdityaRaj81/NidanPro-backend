@@ -31,6 +31,10 @@ public class Receipt {
   @JoinColumn(name = "patient_id", nullable = false)
   private Patient patient;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "lab_id")
+  private Lab lab;
+
   @Column(name = "total_tests", nullable = false)
   private Integer totalTests;
 
