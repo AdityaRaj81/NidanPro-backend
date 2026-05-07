@@ -30,7 +30,7 @@ public class ReportResult {
   @JoinColumn(name = "parameter_id", nullable = false)
   private TestParameter parameter;
 
-  @Column(nullable = false)
+  @Column(name = "result_value", nullable = false)
   private String value;
 
   @Column(name = "out_of_range")

@@ -10,4 +10,8 @@ public interface StaffUserRepository extends JpaRepository<StaffUser, Long> {
   Optional<StaffUser> findByEmployeeCode(String employeeCode);
 
   long countByActiveTrue();
+
+  long countByLab_Id(Long labId);
+
+  long countByBranch_Id(Long branchId);
 }

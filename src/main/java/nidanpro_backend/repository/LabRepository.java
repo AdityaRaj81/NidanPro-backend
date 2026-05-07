@@ -11,5 +11,7 @@ public interface LabRepository extends JpaRepository<Lab, Long> {
 
   Optional<Lab> findBySubdomainIgnoreCase(String subdomain);
 
+  Optional<Lab> findByLabNumberIgnoreCase(String labNumber);
+
   Optional<Lab> findByCustomDomainIgnoreCase(String customDomain);
 }
